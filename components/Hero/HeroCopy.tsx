@@ -14,10 +14,14 @@ export function HeroCopy({ flavor }: HeroCopyProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const priceRef = useRef<HTMLDivElement>(null);
   const lastPrice = useRef(flavor.price);
+  const revealed = useRef(false);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+
+    if (revealed.current) return;
+    revealed.current = true;
 
     const chars = root.querySelectorAll("[data-char]");
     gsap.fromTo(

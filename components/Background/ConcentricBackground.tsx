@@ -10,14 +10,18 @@ export function ConcentricBackground() {
     const rings = ringsRef.current;
     if (!rings) return;
 
-    gsap.to(rings, {
-      rotate: 3.5,
-      transformOrigin: "54% 50%",
-      duration: 18,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-    });
+    const ctx = gsap.context(() => {
+      gsap.to(rings, {
+        rotate: 3.5,
+        transformOrigin: "54% 50%",
+        duration: 18,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    }, ringsRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (

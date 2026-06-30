@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { flavors, type FlavorId } from "@/lib/flavors";
+import { FLIP_HALF, FLIP_SETTLE, REDUCED_FADE, prefersReducedMotion } from "@/lib/motion";
 import { useFlavorStore } from "@/store/useFlavorStore";
 
 const selectorFlavors = ["blue", "silver", "original", "yellow"]
@@ -14,51 +15,102 @@ export function FlavorSelector() {
   const activeId = useFlavorStore((state) => state.activeId);
   const setActiveId = useFlavorStore((state) => state.setActiveId);
   const rootRef = useRef<HTMLDivElement>(null);
-  const switching = useRef(false);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+  // The flavor the hero is currently heading toward. Tracks intent ahead of the
+  // store, since `activeId` only flips at the mid-point of the animation.
+  const pendingRef = useRef<FlavorId>(activeId);
+
+  // Kill any in-flight flip if the component unmounts mid-animation.
+  useEffect(() => {
+    return () => {
+      tlRef.current?.kill();
+    };
+  }, []);
 
   const handleSelect = (id: FlavorId) => {
-    if (id === activeId || switching.current) return;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (id === pendingRef.current) return;
 
-    if (reduceMotion) {
-      setActiveId(id);
-      return;
-    }
-
-    switching.current = true;
-    const activePacket = rootRef.current?.querySelector<HTMLElement>(`[data-packet-for="${activeId}"]`);
-    const targetPacket = rootRef.current?.querySelector<HTMLElement>(`[data-packet-for="${id}"]`);
     const hero = document.querySelector<HTMLElement>(".hero-packet");
-    const rings = document.querySelector<HTMLElement>(".rings-motion-target");
-    const copy = document.querySelector<HTMLElement>("[data-hero-copy]");
 
-    if (!targetPacket || !hero || !copy) {
-      setActiveId(id);
-      switching.current = false;
+    if (prefersReducedMotion()) {
+      pendingRef.current = id;
+      tlRef.current?.kill();
+      if (!hero) {
+        setActiveId(id);
+        return;
+      }
+      // No spin — a gentle dissolve: fade the packet out, swap, fade back in.
+      tlRef.current = gsap
+        .timeline({
+          onComplete: () => {
+            gsap.set(hero, { clearProps: "opacity" });
+            tlRef.current = null;
+          },
+        })
+        .to(hero, { opacity: 0, duration: REDUCED_FADE * 0.45, ease: "power1.in" })
+        .call(() => setActiveId(id))
+        .to(hero, { opacity: 1, duration: REDUCED_FADE * 0.55, ease: "power1.out" });
       return;
     }
+
+    const targetPacket = rootRef.current?.querySelector<HTMLElement>(`[data-packet-for="${id}"]`);
+
+    if (!hero || !targetPacket) {
+      pendingRef.current = id;
+      setActiveId(id);
+      return;
+    }
+
+    // The packet currently on screen is whatever the store shows right now — read
+    // it live, since `activeId` from render can be stale during rapid clicks.
+    const fromId = useFlavorStore.getState().activeId;
+    pendingRef.current = id;
+
+    const fromPacket = rootRef.current?.querySelector<HTMLElement>(`[data-packet-for="${fromId}"]`);
+    const allPackets = gsap.utils.toArray<HTMLElement>(
+      rootRef.current?.querySelectorAll("[data-packet-wrap]") ?? [],
+    );
+
+    // Interrupt any flip already in flight. kill() leaves transforms at their
+    // current values (no clearProps), so the new tweens below tween *from* the
+    // live mid-flight state — the hero keeps spinning forward instead of snapping.
+    tlRef.current?.kill();
 
     gsap.set(hero, { transformOrigin: "50% 50%" });
 
+    // Continue the spin forward from the current angle, but always land on the
+    // next clean multiple of 360° so the packet settles perfectly upright — even
+    // when this flip started part-way through an interrupted one.
+    const startRot = (gsap.getProperty(hero, "rotation") as number) || 0;
+    let endRot = Math.ceil(startRot / 360) * 360;
+    if (endRot - startRot < 200) endRot += 360; // guarantee a meaningful turn
+    const midRot = (startRot + endRot) / 2;
+
     const tl = gsap.timeline({
-      defaults: { ease: "power3.inOut" },
+      // overwrite: "auto" lets each packet tween retarget conflicting in-flight
+      // tweens on the same property, so retargeted thumbnails resolve smoothly.
+      defaults: { ease: "power3.inOut", overwrite: "auto" },
       onComplete: () => {
-        gsap.set(hero, { clearProps: "rotate,scale,y,filter" });
-        gsap.set([activePacket, targetPacket].filter(Boolean), { clearProps: "rotate,scale,y" });
-        switching.current = false;
+        gsap.set(hero, { clearProps: "rotation,scale,filter" });
+        gsap.set(allPackets, { clearProps: "rotate,scale,y" });
+        tlRef.current = null;
       },
     });
+    tlRef.current = tl;
 
-    tl.to(copy, { y: 16, opacity: 0, filter: "blur(10px)", duration: 0.26 }, 0)
-      .to(rings ?? [], { rotate: "+=10", duration: 1.08, transformOrigin: "54% 50%" }, 0)
-      .to(activePacket ?? [], { rotate: 24, scale: 0.94, duration: 0.28 }, 0)
+    // Settle every packet back to rest first — clears any thumbnail left mid-pop
+    // by an interrupted flip — then shrink the outgoing and pop the incoming.
+    tl.to(allPackets, { y: 0, rotate: 0, scale: 1, duration: 0.3 }, 0)
+      .to(fromPacket ?? [], { rotate: 24, scale: 0.94, duration: 0.28 }, 0)
       .to(targetPacket, { rotate: 0, y: -12, scale: 1.14, duration: 0.36, ease: "back.out(1.7)" }, 0.1)
-      .to(hero, { rotate: 180, scale: 0.9, filter: "blur(1.5px)", duration: 0.48, ease: "power2.in" }, 0)
-      .call(() => setActiveId(id), undefined, 0.48)
-      .to(hero, { rotate: 360, scale: 1.08, filter: "blur(0px)", duration: 0.48, ease: "power2.out" }, 0.48)
-      .to(hero, { rotate: 360, scale: 1, duration: 0.22, ease: "back.out(2.2)" }, 0.96)
-      .to([activePacket, targetPacket].filter(Boolean), { y: 0, rotate: 0, scale: 1, duration: 0.34, ease: "back.out(1.8)" }, 0.82)
-      .to(copy, { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.34 }, 0.84);
+      // Conceal half → swap at the edge-on midpoint → reveal half → scale settle.
+      // The swap at FLIP_HALF triggers the background recolor, which is timed to
+      // finish exactly when this flip does (see lib/motion.ts).
+      .to(hero, { rotation: midRot, scale: 0.9, filter: "blur(1.5px)", duration: FLIP_HALF, ease: "power2.in" }, 0)
+      .call(() => setActiveId(id), undefined, FLIP_HALF)
+      .to(hero, { rotation: endRot, scale: 1.08, filter: "blur(0px)", duration: FLIP_HALF, ease: "power2.out" }, FLIP_HALF)
+      .to(hero, { scale: 1, duration: FLIP_SETTLE, ease: "back.out(2.2)" }, FLIP_HALF * 2)
+      .to([fromPacket, targetPacket].filter(Boolean), { y: 0, rotate: 0, scale: 1, duration: 0.34, ease: "back.out(1.8)" }, FLIP_HALF + 0.3);
   };
 
   return (

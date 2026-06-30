@@ -9,6 +9,7 @@ import { Navbar } from "@/components/Navbar/Navbar";
 import { ProductViewer } from "@/components/ProductViewer/ProductViewer";
 import { flavors, getFlavor } from "@/lib/flavors";
 import { applyFlavorVars } from "@/lib/theme";
+import { BG_RESOLVE, REDUCED_FADE, RING_STAGGER, prefersReducedMotion } from "@/lib/motion";
 import { useLenis } from "@/hooks/useLenis";
 import { useFlavorStore } from "@/store/useFlavorStore";
 
@@ -32,33 +33,56 @@ export function LandingHero() {
 
     const rings = gsap.utils.toArray<SVGCircleElement>(stage.querySelectorAll("[data-bg-ring]"));
     const ringStroke = `rgba(${activeFlavor.ringColor.split(" ").join(", ")}, ${activeFlavor.ringOpacity})`;
+    const reduceMotion = prefersReducedMotion();
+    const tweens: gsap.core.Tween[] = [];
 
-    if (themeReadyRef.current) {
-      gsap.to(rings, {
-        attr: { stroke: ringStroke },
-        duration: 0.72,
-        stagger: { each: 0.075, from: "center" },
-        ease: "power3.inOut",
-      });
-    } else {
+    if (!themeReadyRef.current) {
       gsap.set(rings, { attr: { stroke: ringStroke } });
+    } else if (reduceMotion) {
+      // No ripple — a quick, uniform color crossfade across all rings at once.
+      tweens.push(
+        gsap.to(rings, { attr: { stroke: ringStroke }, duration: REDUCED_FADE, ease: "power1.out", overwrite: "auto" }),
+      );
+    } else {
+      // Recolor the concentric stripes ring-by-ring from the innermost outward,
+      // so the new flavor's tint ripples out from behind the packet. The total
+      // sweep is sized to BG_RESOLVE so it lands with the flip and gradient.
+      // overwrite: "auto" lets a rapid re-click retarget the in-flight ripple
+      // smoothly instead of two color tweens fighting per ring.
+      const ringDuration = Math.max(0.2, BG_RESOLVE - RING_STAGGER * (rings.length - 1));
+      tweens.push(
+        gsap.to(rings, {
+          attr: { stroke: ringStroke },
+          duration: ringDuration,
+          stagger: { each: RING_STAGGER, from: "start" },
+          ease: "sine.inOut",
+          overwrite: "auto",
+        }),
+      );
     }
 
-    gsap.to(stage, {
-      "--stage-c1": activeFlavor.gradient.c1,
-      "--stage-c2": activeFlavor.gradient.c2,
-      "--stage-c3": activeFlavor.gradient.c3,
-      "--stage-c4": activeFlavor.gradient.c4,
-      "--ring-color": activeFlavor.ringColor,
-      "--ring-opacity": activeFlavor.ringOpacity,
-      "--accent": activeFlavor.accent,
-      "--accent-rgb": activeFlavor.accentRgb,
-      "--shadow-color": activeFlavor.shadow,
-      duration: 1.08,
-      ease: "power3.inOut",
-    });
+    tweens.push(
+      gsap.to(stage, {
+        "--stage-c1": activeFlavor.gradient.c1,
+        "--stage-c2": activeFlavor.gradient.c2,
+        "--stage-c3": activeFlavor.gradient.c3,
+        "--stage-c4": activeFlavor.gradient.c4,
+        "--ring-color": activeFlavor.ringColor,
+        "--ring-opacity": activeFlavor.ringOpacity,
+        "--accent": activeFlavor.accent,
+        "--accent-rgb": activeFlavor.accentRgb,
+        "--shadow-color": activeFlavor.shadow,
+        duration: reduceMotion ? REDUCED_FADE : BG_RESOLVE,
+        ease: reduceMotion ? "power1.out" : "power3.inOut",
+        overwrite: "auto",
+      }),
+    );
 
     themeReadyRef.current = true;
+
+    // Kill (not revert) on the next change / unmount so values stay put and the
+    // next tween picks up smoothly from the live color.
+    return () => tweens.forEach((tween) => tween.kill());
   }, [activeFlavor]);
 
   return (
