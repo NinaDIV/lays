@@ -10,8 +10,8 @@ type FlavorState = {
 };
 
 export const useFlavorStore = create<FlavorState>((set) => ({
-  activeId: "original",
-  quantity: 2,
+  activeId: "bomba-intake",
+  quantity: 1,
   setActiveId: (id) => set({ activeId: id }),
   increment: () => set((state) => ({ quantity: Math.min(state.quantity + 1, 9) })),
   decrement: () => set((state) => ({ quantity: Math.max(state.quantity - 1, 1) })),

@@ -5,6 +5,7 @@ import gsap from "gsap";
 import type { Flavor } from "@/lib/flavors";
 import { OrderButton } from "@/components/Buttons/OrderButton";
 import { QuantitySelector } from "@/components/Quantity/QuantitySelector";
+import { MapPin, ShieldCheck, Truck, Zap } from "lucide-react";
 
 type HeroCopyProps = {
   flavor: Flavor;
@@ -53,7 +54,7 @@ export function HeroCopy({ flavor }: HeroCopyProps) {
       duration: 0.68,
       ease: "power3.out",
       onUpdate: () => {
-        node.textContent = `$${state.value.toFixed(2)}`;
+        node.textContent = `S/ ${state.value.toFixed(2)}`;
       },
     });
     lastPrice.current = flavor.price;
@@ -64,10 +65,19 @@ export function HeroCopy({ flavor }: HeroCopyProps) {
   return (
     <section
       ref={rootRef}
-      className="z-20 flex max-w-[500px] flex-col pt-[68px] text-left max-lg:max-w-[440px] max-md:order-2 max-md:items-center max-md:pt-0 max-md:text-center"
+      className="z-20 flex max-w-[520px] flex-col pt-[32px] text-left max-lg:max-w-[440px] max-md:order-2 max-md:items-center max-md:pt-0 max-md:text-center"
       aria-live="polite"
     >
-      <h1 className="max-w-[470px] text-[clamp(54px,4.8vw,78px)] font-black uppercase leading-[0.99] tracking-[0] text-white drop-shadow-[0_8px_20px_rgb(102_33_0_/_0.13)]">
+      <div data-copy-rest className="mb-3 flex flex-wrap gap-2 max-md:justify-center">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[13px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
+          <ShieldCheck size={14} className="text-cyan-300" /> IP68 Sumergible
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[13px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
+          <Zap size={14} className="text-yellow-300" /> DC 12V Brushless
+        </span>
+      </div>
+
+      <h1 className="max-w-[490px] text-[clamp(36px,3.8vw,58px)] font-black uppercase leading-[1.05] tracking-[0] text-white drop-shadow-[0_8px_20px_rgb(0_65_120_/_0.25)]">
         {words.map((word, wordIndex) => (
           <span key={`${flavor.id}-${word}-${wordIndex}`} className="inline-block whitespace-nowrap pr-[0.21em]">
             {Array.from(word).map((char, charIndex) => (
@@ -82,19 +92,28 @@ export function HeroCopy({ flavor }: HeroCopyProps) {
       <div
         ref={priceRef}
         data-copy-rest
-        className="mt-[var(--space-24)] text-[clamp(50px,4.1vw,70px)] font-black leading-none tabular-nums"
+        className="mt-[16px] text-[clamp(44px,3.8vw,64px)] font-black leading-none tabular-nums text-white drop-shadow-md"
       >
-        ${flavor.price.toFixed(2)}
+        S/ {flavor.price.toFixed(2)}
       </div>
 
       <p
         data-copy-rest
-        className="mt-[var(--space-32)] max-w-[435px] text-[20px] font-medium leading-[1.34] text-white/95 md:text-[21px]"
+        className="mt-[18px] max-w-[450px] text-[17px] font-medium leading-[1.4] text-white/95 md:text-[18px]"
       >
         {flavor.description}
       </p>
 
-      <div data-copy-rest className="mt-[var(--space-48)] flex items-center gap-[var(--space-16)] max-sm:flex-col">
+      <div data-copy-rest className="mt-4 flex flex-col gap-2 text-[14px] text-white/90">
+        <div className="flex items-center gap-2 max-md:justify-center">
+          <Truck size={16} className="text-cyan-200 shrink-0" /> Envíos a todo el Perú por agencia <strong>Shalom</strong>
+        </div>
+        <div className="flex items-center gap-2 max-md:justify-center">
+          <MapPin size={16} className="text-cyan-200 shrink-0" /> Recogida o entrega en <strong>Characato, Arequipa</strong>
+        </div>
+      </div>
+
+      <div data-copy-rest className="mt-[28px] flex items-center gap-[var(--space-16)] max-sm:flex-col">
         <QuantitySelector />
         <OrderButton />
       </div>

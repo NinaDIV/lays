@@ -7,7 +7,7 @@ import { flavors, type FlavorId } from "@/lib/flavors";
 import { FLIP_HALF, FLIP_SETTLE, REDUCED_FADE, prefersReducedMotion } from "@/lib/motion";
 import { useFlavorStore } from "@/store/useFlavorStore";
 
-const selectorFlavors = ["blue", "silver", "original", "yellow"]
+const selectorFlavors = ["bomba-intake", "bomba-dimensiones", "bomba-chorro", "bomba-rosca"]
   .map((id) => flavors.find((flavor) => flavor.id === id))
   .filter(Boolean) as typeof flavors;
 
@@ -146,11 +146,11 @@ export function FlavorSelector() {
               >
                 <Image
                   src={flavor.asset}
-                  alt=""
-                  width={1024}
-                  height={1536}
+                  alt={flavor.eyebrow}
+                  width={400}
+                  height={400}
                   sizes="130px"
-                  className="h-full w-auto drop-shadow-[0_18px_22px_var(--shadow-color)] transition duration-[var(--duration-04)] ease-premium group-hover:brightness-110 group-hover:saturate-125"
+                  className="h-full w-auto object-contain drop-shadow-[0_12px_20px_var(--shadow-color)] transition duration-[var(--duration-04)] ease-premium group-hover:scale-110 group-hover:brightness-110"
                 />
               </span>
             </button>
