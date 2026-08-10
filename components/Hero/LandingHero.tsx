@@ -93,13 +93,33 @@ export function LandingHero() {
       <ConcentricBackground />
       <Navbar />
 
-      <div className="relative z-10 grid min-h-[calc(100vh-170px)] grid-cols-[33%_43%_24%] items-center max-lg:grid-cols-[35%_45%_20%] max-md:flex max-md:min-h-0 max-md:flex-col">
+      <div className="relative z-10 grid min-h-[calc(100vh-270px)] grid-cols-[33%_43%_24%] items-center max-lg:grid-cols-[35%_45%_20%] max-md:flex max-md:min-h-0 max-md:flex-col">
         <div data-hero-copy>
           <HeroCopy flavor={activeFlavor} />
         </div>
         <ProductViewer flavor={activeFlavor} />
         <FlavorSelector />
       </div>
+
+      <footer className="relative z-10 mt-16 border-t border-white/10 pt-8 pb-4 text-xs text-white/60 max-md:mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h2 className="font-bold text-white text-[14px] mb-2">AquaPump 12V Perú - Minibombas de Agua</h2>
+            <p className="leading-relaxed">
+              Especialistas en mini bombas de agua sumergibles de 12V DC con motor sin escobillas Brushless de larga vida útil y ultra silenciosas. Ideal para jardines, peceras, cascadas de interior, fuentes y proyectos de hidroponía. Punto de entrega física en <strong>Characato, Arequipa</strong> y distribución nacional.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-bold text-white text-[14px] mb-2">Envíos por Shalom a todo el Perú</h3>
+            <p className="leading-relaxed">
+              Enviamos tu pedido rápido y seguro mediante <strong>Agencia Shalom</strong> a todos los departamentos de Perú: Lima, Arequipa, Trujillo, Chiclayo, Piura, Cusco, Huancayo, Tacna, Ica, Cajamarca, Chimbote, Pucallpa, Iquitos, Tarapoto, Juliaca, Puno, Huánuco, Moquegua, Ilo, Tumbes, Puerto Maldonado y más ciudades.
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 text-center border-t border-white/5 pt-4 text-white/40">
+          © {new Date().getFullYear()} AquaPump 12V. Minibombas de agua silenciosas sumergibles de 12V y 24V. Todos los derechos reservados.
+        </div>
+      </footer>
     </main>
   );
 }
