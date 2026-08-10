@@ -40,7 +40,7 @@ export function Navbar() {
       <div className="flex items-center gap-3">
         <button
           onClick={openWhatsApp}
-          className="flex items-center gap-2 rounded-full bg-emerald-500/90 px-4 py-2.5 text-[15px] font-bold text-white shadow-lg backdrop-blur-sm transition duration-[var(--duration-02)] ease-premium hover:scale-105 hover:bg-emerald-500 focus-visible:ring-2 focus-visible:ring-white"
+          className="hidden md:flex items-center gap-2 rounded-full bg-emerald-500/90 px-4 py-2.5 text-[15px] font-bold text-white shadow-lg backdrop-blur-sm transition duration-[var(--duration-02)] ease-premium hover:scale-105 hover:bg-emerald-500 focus-visible:ring-2 focus-visible:ring-white"
         >
           <MessageCircle className="size-5 fill-white stroke-emerald-600" />
           <span>900094969</span>
