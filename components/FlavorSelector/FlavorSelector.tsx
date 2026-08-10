@@ -119,7 +119,7 @@ export function FlavorSelector() {
       className="pointer-events-auto absolute inset-y-0 right-0 z-20 w-[24%] max-md:static max-md:order-3 max-md:w-full"
       aria-label="Select flavor"
     >
-      <div className="relative h-full w-full max-md:flex max-md:h-[172px] max-md:items-center max-md:justify-center max-md:gap-[var(--space-16)] max-sm:overflow-x-auto max-sm:px-[var(--space-16)]">
+      <div className="relative h-full w-full max-md:flex max-md:h-[220px] max-md:py-6 max-md:items-center max-md:justify-center max-md:gap-[var(--space-16)] max-sm:overflow-x-auto max-sm:px-[var(--space-16)]">
         {selectorFlavors.map((flavor) => {
           const isActive = activeId === flavor.id;
 
