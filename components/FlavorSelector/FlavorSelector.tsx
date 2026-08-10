@@ -129,14 +129,16 @@ export function FlavorSelector() {
               data-flavor-card
               data-flavor-id={flavor.id}
               onClick={() => handleSelect(flavor.id)}
-              className="group absolute grid h-[160px] w-[122px] place-items-center rounded-[var(--radius-24)] outline-none transition-transform duration-[var(--duration-06)] ease-premium focus-visible:ring-2 focus-visible:ring-white max-md:relative max-md:right-auto max-md:top-auto max-md:h-[138px] max-md:w-[104px] max-sm:shrink-0"
+              className="group absolute grid h-[160px] w-[122px] place-items-center rounded-[var(--radius-24)] outline-none transition-transform duration-[var(--duration-06)] ease-premium focus-visible:ring-2 focus-visible:ring-white max-md:relative max-md:right-auto max-md:top-auto max-md:h-[138px] max-md:w-[104px] max-sm:shrink-0 max-md:[--thumb-top:auto] max-md:[--thumb-right:auto]"
               style={{
-                top: flavor.thumbnail.top,
-                right: flavor.thumbnail.right,
+                top: "var(--thumb-top)",
+                right: "var(--thumb-right)",
                 transform: `rotate(${isActive ? 0 : flavor.thumbnail.rotate}deg) scale(${
                   flavor.thumbnail.scale * (isActive ? 2.28 : 2.2)
                 })`,
-              }}
+                "--thumb-top": flavor.thumbnail.top,
+                "--thumb-right": flavor.thumbnail.right,
+              } as React.CSSProperties}
               aria-label={`Select ${flavor.eyebrow}`}
             >
               <span

@@ -65,18 +65,9 @@ export function HeroCopy({ flavor }: HeroCopyProps) {
   return (
     <section
       ref={rootRef}
-      className="z-20 flex max-w-[520px] flex-col pt-[32px] text-left max-lg:max-w-[440px] max-md:order-2 max-md:items-center max-md:pt-0 max-md:text-center"
+      className="z-20 flex max-w-[520px] flex-col pt-[58px] text-left max-lg:max-w-[440px] max-md:order-2 max-md:items-center max-md:pt-0 max-md:text-center"
       aria-live="polite"
     >
-      <div data-copy-rest className="mb-3 flex flex-wrap gap-2 max-md:justify-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[13px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
-          <ShieldCheck size={14} className="text-cyan-300" /> IP68 Sumergible
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[13px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
-          <Zap size={14} className="text-yellow-300" /> DC 12V Brushless
-        </span>
-      </div>
-
       <h1 className="max-w-[490px] text-[clamp(36px,3.8vw,58px)] font-black uppercase leading-[1.05] tracking-[0] text-white drop-shadow-[0_8px_20px_rgb(0_65_120_/_0.25)]">
         {words.map((word, wordIndex) => (
           <span key={`${flavor.id}-${word}-${wordIndex}`} className="inline-block whitespace-nowrap pr-[0.21em]">
